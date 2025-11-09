@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Pembayaran - Ditozz || Galaxy</title>
+    <style>
+        /* CSS untuk Tema Galaksi dan Tampilan */
+        :root {
+            /* Skema Warna Galaksi (Biru Tua - Ungu Terang) */
+            --primary-color: #A0B9FF; /* Biru muda/ungu terang untuk aksen */
+            --secondary-color: #7957D5; /* Ungu gelap untuk tombol */
+            --background-color: #0A041A; /* Biru/Ungu sangat gelap (langit malam) */
+            --card-background: rgba(40, 30, 80, 0.8); /* Kartu transparan gelap */
+            --text-color: #E8EAF6;
+            --border-radius: 16px;
+            --card-max-width: 350px; /* Batas maksimum lebar kartu agar tidak terlalu besar */
+        }
+
+        /* Animasi Bintang Berkedip */
+        @keyframes starTwinkle {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            box-sizing: border-box;
+            overflow-x: hidden;
+            /* Gradien Latar Belakang Galaksi */
+            background-image: radial-gradient(circle at 50% 100%, #1a0a38 0%, var(--background-color) 70%);
+        }
+        
+        /* Efek Bintang (Galaksi) */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: starTwinkle 3s infinite alternate;
+        }
+
+        /* Kontainer Utama */
+        .container {
+            width: 95%;
+            max-width: 400px;
+            padding: 20px 0;
+            z-index: 10;
+        }
+
+        /* Header Profil */
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary-color);
+            box-shadow: 0 0 15px var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        /* Tombol Musik */
+        #music-toggle {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 30px; 
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1em;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+        }
+
+        /* Pesan Selamat Datang */
+        .welcome-message {
+            background: var(--card-background);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        
+        /* Kontainer Geser Payment */
+        .payment-carousel-container {
+            position: relative;
+            overflow: hidden;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .payment-carousel {
+            display: flex;
+            transition: transform 0.3s ease-in-out;
+            width: max-content;
+            margin-left: 10px; /* Jarak awal */
+        }
+        
+        .payment-card {
+            background: linear-gradient(135deg, rgba(50, 40, 90, 0.9) 0%, rgba(20, 10, 50, 0.9) 100%);
+            border: 1px solid var(--primary-color);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-sizing: border-box;
+            /* Ukuran kartu proporsional */
+            width: calc(100% - 20px); 
+            max-width: var(--card-max-width);
+            flex-shrink: 0;
+            margin: 0 10px; 
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @media (min-width: 400px) {
+             .payment-card {
+                width: var(--card-max-width);
+            }
+        }
+
+        .payment-logo {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        /* Baris Detail */
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 8px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .value {
+            font-weight: bold;
+            font-size: 1.1em;
+            word-break: break-all;
+            text-align: right;
+        }
+        
+        .copy-btn {
+            background: none;
+            border: none;
+            color: #7BE9FF; 
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: 10px;
+            white-space: nowrap;
+        }
+        
+        /* QRIS Card Specific Styling */
+        .qris-image {
+            width: 90%;
+            max-width: 250px;
+            height: auto;
+            border-radius: var(--border-radius);
+            margin-top: 15px;
+            border: 3px solid white;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Kontrol Geser (Panah) */
+        .carousel-control {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            color: white;
+            padding: 8px;
+            cursor: pointer;
+            z-index: 20;
+            border-radius: 50%;
+            font-size: 1.2em;
+        }
+
+        #prev-btn { left: -15px; }
+        #next-btn { right: -15px; }
+
+        /* Indikator Geser */
+        .carousel-indicators {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .indicator {
+            width: 8px;
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            margin: 0 5px;
+        }
+
+        .indicator.active {
+            background-color: var(--primary-color);
+            box-shadow: 0 0 5px var(--primary-color);
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars-container"></div>
+    
+    <div class="container">
+        
+        <div class="profile-header">
+            <img src="https://files.catbox.moe/urbxh8.jpg" alt="Foto Profil" class="profile-img">
+            <h1>Daftar Pembayaran - Ditozz || Galaxy</h1>
+            <p class="subtitle">Metode pembayaran praktis, cepat, dan rapi</p>
+        </div>
+        
+        <div style="text-align: center;">
+             <button id="music-toggle">
+                <span id="music-icon">▶️</span> Musik: OFF
+            </button>
+        </div>
+
+        <div class="welcome-message">
+            <h2>SELAMAT DATANG 👋</h2>
+            <p>Geser kartu untuk melihat metode, Detail pembayaran langsung ada di kartu, gunakan tombol *Salin* untuk menyalin.</p>
+        </div>
+        
+        <div class="payment-carousel-container">
+            <div class="payment-carousel" id="payment-carousel">
+                
+                <div class="payment-card">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Gopay_logo.svg/1200px-Gopay_logo.svg.png" alt="Logo GoPay" class="payment-logo">
+                    <h3 class="payment-name">GoPay</h3>
+                    
+                    <div class="detail-row">
+                        <span class="label">Nomor E-Wallet</span>
+                        <span class="value" id="gopay-number">085786291181</span>
+                        <button class="copy-btn" data-target="gopay-number">Salin</button>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <span class="label">Atas Nama</span>
+                        <span class="value" id="gopay-name">PUJIXXX</span>
+                        <button class="copy-btn" data-target="gopay-name">Salin</button>
+                    </div>
+                    
+                    <p class="copy-status" id="gopay-status"></p>
+                </div>
+
+                <div class="payment-card">
+                    <img src="https://files.catbox.moe/2m7lma.jpg" alt="Logo DANA" class="payment-logo">
+                    <h3 class="payment-name">DANA</h3>
+                    
+                    <div class="detail-row">
+                        <span class="label">Nomor E-Wallet</span>
+                        <span class="value" id="dana-number">085786291181</span>
+                        <button class="copy-btn" data-target="dana-number">Salin</button>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <span class="label">Atas Nama</span>
+                        <span class="value" id="dana-name">PUJIXXX</span>
+                        <button class="copy-btn" data-target="dana-name">Salin</button>
+                    </div>
+                    
+                    <p class="copy-status" id="dana-status"></p>
+                </div>
+                
+                <div class="payment-card">
+                    <img src="https://files.catbox.moe/7unt07.jpg" alt="Logo QRIS" class="payment-logo">
+                    <h3 class="payment-name">QRIS (Scan Barcode)</h3>
+                    
+                    <img src="https://files.catbox.moe/6fzv9i.jpg" alt="Kode QRIS" class="qris-image">
+                    
+                    <div class="detail-row" style="margin-top: 15px;">
+                        <span class="label">Nama Penerima</span>
+                        <span class="value">DITOZZMARKET.ID</span>
+                    </div>
+                    
+                    <p class="copy-status" style="height: auto;">Pastikan nama penerima sesuai saat scan</p>
+                </div>
+                
+            </div>
+            
+            <button class="carousel-control" id="prev-btn">◀️</button>
+            <button class="carousel-control" id="next-btn">▶️</button>
+        </div>
+        
+        <div class="carousel-indicators" id="carousel-indicators">
+            </div>
+        
+    </div>
+    
+    <audio id="background-music" loop preload="auto">
+        <source src="https://files.catbox.moe/0mzqfd.mp3" type="audio/mp3">
+        Browser Anda tidak mendukung elemen audio.
+    </audio>
+
+    <script>
+        // JavaScript untuk Fungsionalitas Bintang, Geser, Salin, dan Musik
+        document.addEventListener('DOMContentLoaded', () => {
+            const carousel = document.getElementById('payment-carousel');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const indicatorsContainer = document.getElementById('carousel-indicators');
+            const cards = document.querySelectorAll('.payment-card');
+            const cardCount = cards.length;
+            let currentIndex = 0;
+            
+            // --- Fungsionalitas Bintang (Galaksi) ---
+            const starsContainer = document.getElementById('stars-container');
+            const starCount = 100;
+
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.animationDelay = `${Math.random() * 5}s`;
+                starsContainer.appendChild(star);
+            }
+
+            // --- Fungsionalitas Geser (Carousel) ---
+            
+            // Menghasilkan indikator
+            cards.forEach((_, index) => {
+                const indicator = document.createElement('div');
+                indicator.className = 'indicator';
+                if (index === 0) indicator.classList.add('active');
+                indicator.dataset.index = index;
+                indicator.addEventListener('click', () => {
+                    goToSlide(index);
+                });
+                indicatorsContainer.appendChild(indicator);
+            });
+            const indicators = document.querySelectorAll('.indicator');
+
+            const updateCarousel = () => {
+                // Menghitung lebar total kartu + margin
+                const cardStyle = getComputedStyle(cards[0]);
+                const cardWidth = cards[0].offsetWidth;
+                const margin = parseFloat(cardStyle.marginLeft) + parseFloat(cardStyle.marginRight);
+                const totalWidth = cardWidth + margin;
+                
+                // Geser carousel
+                carousel.style.transform = `translateX(-${currentIndex * totalWidth}px)`;
+                
+                // Update indikator dan tombol navigasi
+                indicators.forEach((indicator, index) => {
+                    indicator.classList.toggle('active', index === currentIndex);
+                });
+                
+                prevBtn.style.visibility = currentIndex === 0 ? 'hidden' : 'visible';
+                nextBtn.style.visibility = currentIndex === cardCount - 1 ? 'hidden' : 'visible';
+            };
+
+            const goToSlide = (index) => {
+                currentIndex = Math.max(0, Math.min(cardCount - 1, index));
+                updateCarousel();
+            };
+
+            prevBtn.addEventListener('click', () => goToSlide(currentIndex - 1));
+            nextBtn.addEventListener('click', () => goToSlide(currentIndex + 1));
+
+            window.addEventListener('resize', () => {
+                // Panggil ulang updateCarousel setelah resize untuk stabilitas di HP
+                setTimeout(updateCarousel, 100);
+            });
+            
+            updateCarousel();
+            
+            // --- Fungsionalitas Salin (Copy) ---
+            const copyButtons = document.querySelectorAll('.copy-btn');
+            copyButtons.forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    const targetId = e.target.dataset.target;
+                    const targetElement = document.getElementById(targetId);
+                    const statusId = targetId.split('-')[0] + '-status';
+                    const statusElement = document.getElementById(statusId);
+                    
+                    const textToCopy = targetElement.textContent.trim();
+                    
+                    try {
+                        await navigator.clipboard.writeText(textToCopy);
+                        statusElement.textContent = `✅ Berhasil menyalin ${textToCopy}!`;
+                        statusElement.style.color = '#4CAF50';
+                        setTimeout(() => statusElement.textContent = '', 2000);
+                        
+                    } catch (err) {
+                        // Fallback jika API clipboard gagal
+                        console.error('Gagal menyalin: ', err);
+                        statusElement.textContent = '❌ Gagal menyalin, coba salin manual.';
+                        statusElement.style.color = '#F44336';
+                        setTimeout(() => statusElement.textContent = '', 3000);
+                    }
+                });
+            });
+
+            // --- Fungsionalitas Musik ---
+            const music = document.getElementById('background-music');
+            const musicToggleBtn = document.getElementById('music-toggle');
+            const musicIcon = document.getElementById('music-icon');
+            let isPlaying = false;
+
+            // Mencoba Autoplay (kemungkinan diblokir, tapi kita coba)
+            const tryAutoplay = async () => {
+                try {
+                    await music.play();
+                    isPlaying = true;
+                    musicIcon.textContent = '⏸️';
+                    musicToggleBtn.innerHTML = `${musicIcon.outerHTML} Musik: ON`;
+                } catch (err) {
+                    console.log("Autoplay musik diblokir. Pengguna perlu berinteraksi.");
+                    // Coba putar tanpa suara, browser mungkin mengizinkan
+                    music.muted = true;
+                    music.play().catch(() => {}); 
+                }
+            };
+
+            tryAutoplay();
+
+            musicToggleBtn.addEventListener('click', () => {
+                if (isPlaying) {
+                    music.pause();
+                    isPlaying = false;
+                    musicIcon.textContent = '▶️';
+                    musicToggleBtn.innerHTML = `${musicIcon.outerHTML} Musik: OFF`;
+                } else {
+                    // Pastikan tidak muted saat pengguna mengklik
+                    music.muted = false;
+                    music.play().then(() => {
+                        isPlaying = true;
+                        musicIcon.textContent = '⏸️';
+                        musicToggleBtn.innerHTML = `${musicIcon.outerHTML} Musik: ON`;
+                    }).catch(error => {
+                        alert("Browser Anda memblokir pemutaran otomatis. Mohon izinkan media.");
+                        isPlaying = false;
+                        musicIcon.textContent = '▶️';
+                        musicToggleBtn.innerHTML = `${musicIcon.outerHTML} Musik: OFF`;
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
